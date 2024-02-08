@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Testing the circle</title>
+    </head>
+    <body>
+        <div class="circle" id="circle">
+        </div>
+    </body>
+</html>
+<style>
+html{
+    background-color: black;
+}
+.circle{
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    border: solid 1px white;
+    border-radius: 100%;
+    top:-20px;
+    left:-20px;
+}
+</style>
+
+<script>
+    
+    var mouse = { 
+        x: 0,
+        y: 0 
+    }
+    var circle = {
+        x: 0,
+        y: 0,
+        rotation: 0,
+        startingScale: {
+            x: 1,
+            y:1
+        }
+    }
+    var circleDom;
+    var followStrength = 3; //lower = closer follow.
+    var maxScaleChange = 0.5;
+    var diffLimit = 200;
+
+    window.onload = function () {
+        window.addEventListener("mousemove", mouseMoved);
+        window.setInterval(mainLoop,17)
+        circleDom = document.getElementById("circle");
+    }
+
+    function mouseMoved(event) {
+        mouse.x = event.clientX;
+        mouse.y = event.clientY;
+    }
+
+    function hypotenus(a, b) { 
+        if (a == 0 || b == 0) return 0;
+        return Math.sqrt(Math.pow(a,2) + Math.pow(b,2)) 
+    }
+
+    function mainLoop(){
+        //get positino difference form mouse to circle.
+        let diff = {
+            x: circle.x - mouse.x,
+            y: circle.y - mouse.y
+        }
+        //gets rotation for circle.
+        circle.rotation = diff.x == 0 ? 0 : Math.atan(diff.y/diff.x);
+        //changes position of circle.
+        circle.x -= diff.x/Math.max(followStrength,1);
+        circle.y -= diff.y/Math.max(followStrength,1);
+        //gets the scale change for the circle
+        let change = Math.min(hypotenus(diff.x, diff.y) / diffLimit * 0.5, maxScaleChange);
+        //updates the cirleDom 
+        circleDom.style.transform = `translate(${circle.x}px, ${circle.y}px) rotate(${circle.rotation}rad) scale(${circle.startingScale.x + change},${circle.startingScale.y - change})`;
+    }
+</script>
